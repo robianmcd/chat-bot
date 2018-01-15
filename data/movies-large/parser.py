@@ -20,8 +20,8 @@ with open('movie_conversations.txt', 'r', encoding='utf-8') as conversations_fil
 
         conversations.append([lines[line] for line in conv_lines])
 
-with open('movie_responses.txt', 'w', encoding='utf-8') as responses_file:
-    with open('movie_context.txt', 'w', encoding='utf-8') as context_file:
+with open('data_responses.txt', 'w', encoding='utf-8') as responses_file:
+    with open('data_context.txt', 'w', encoding='utf-8') as context_file:
         for conversation in conversations:
             for i in range(1, len(conversation)):
                 if i is 1:
