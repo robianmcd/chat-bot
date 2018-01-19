@@ -72,7 +72,7 @@ if __name__ == '__main__':
         build_vocab([
             'data/{0}/data_context.txt'.format(directory),
             'data/{0}/data_responses.txt'.format(directory)
-        ])
+        ], overwrite)
 
     if run_encode:
         encode_data([

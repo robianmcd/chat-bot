@@ -15,7 +15,7 @@ def get_new_vocab():
     vocab['end of string'] = 0
     return vocab
 
-tknzr = TweetTokenizer(reduce_len=True)
+tknzr = TweetTokenizer(reduce_len=True, preserve_case=False)
 def tokenize(str):
     str = re.sub(r'(:[\w_]+:)', r'<\1>', str)
     return tknzr.tokenize(str)
