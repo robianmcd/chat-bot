@@ -47,8 +47,7 @@ vocab_list = list(vocab.keys())
 
 def reply(input_str):
     tokens = util.tokenize(input_str)
-    #TODO: doesn't support words not in the vocabulary
-    encoded_tokens = [vocab[token] for token in util.tokenize(input_str) if token in vocab]
+    encoded_tokens = [vocab.get(token, vocab['UNKNOWN_WORD']) for token in util.tokenize(input_str)]
     encoded_tokens += [0] * (config['sequence_length'] - len(encoded_tokens))
 
     # Encode the input as state vectors.
@@ -70,7 +69,7 @@ def reply(input_str):
 
         # Exit condition: either hit max length
         # or find stop character.
-        if predicted_word == 'end of string':
+        if predicted_word == 'END_OF_STRING':
             stop_condition = True
         else:
             decoded_sentence += ' ' + predicted_word

@@ -11,6 +11,8 @@ vocab = util.get_vocab()
 
 opts, args = getopt.getopt(sys.argv[1:], 'd:', ['directory='])
 
+with open('data/glove_embeddings.pickle', 'rb') as handle:
+    embedding_matrix = pickle.load(handle)
 
 directory = None
 
@@ -43,11 +45,11 @@ def generateData(batch_size):
 
 #Create layers
 encoder_input_layer = Input(shape=(None,))
-encoder_embedding_layer = Embedding(len(vocab), THOUGHT_VECTOR_SIZE)
+encoder_embedding_layer = Embedding(len(vocab), THOUGHT_VECTOR_SIZE, weights=[embedding_matrix])
 encoder_gru_layer = GRU(THOUGHT_VECTOR_SIZE, return_state=True)
 
 decoder_input_layer = Input(shape=(None,))
-decoder_embedding_layer = Embedding(len(vocab), THOUGHT_VECTOR_SIZE)
+decoder_embedding_layer = Embedding(len(vocab), THOUGHT_VECTOR_SIZE, weights=[embedding_matrix])
 decoder_gru_layer = GRU(THOUGHT_VECTOR_SIZE, return_sequences=True)
 decoder_dense_layer = Dense(len(vocab), activation='softmax')
 

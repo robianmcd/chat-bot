@@ -4,13 +4,11 @@ import getopt
 import sys
 import os
 
-input_files = ['cornell-movie-dialogs-corpus\movie_responses.txt', 'cornell-movie-dialogs-corpus\movie_context.txt']
+min_word_count_threshold = 5
+max_tokens_in_sequence = 200
 
-def build_vocab(input_files, overwrite=False):
-    if overwrite:
-        vocab = util.get_new_vocab()
-    else:
-        vocab = util.get_vocab()
+def build_vocab(input_files):
+    word_count_dict = {}
 
     for file_path in input_files:
         with open(file_path, encoding='utf8') as file:
@@ -18,8 +16,16 @@ def build_vocab(input_files, overwrite=False):
                 tokens = util.tokenize(line)
 
                 for token in tokens:
-                    if not (token in vocab):
-                        vocab[token] = len(vocab)
+                    if not (token in word_count_dict):
+                        word_count_dict[token] = 0
+                    word_count_dict[token] = word_count_dict[token] + 1
+
+    vocab = util.get_new_vocab()
+
+    for word, count in word_count_dict.items():
+        if count > min_word_count_threshold:
+            vocab[word] = len(vocab)
+
 
     with open('data/vocab.pickle', 'wb') as file:
         pickle.dump(vocab, file, protocol=pickle.HIGHEST_PROTOCOL)
@@ -39,27 +45,26 @@ def encode_data(input_files):
                     max_tokens = max(max_tokens, len(util.tokenize(line)))
                 input_file.seek(0)
 
-                max_tokens = min(200, max_tokens)
+                max_tokens = min(max_tokens_in_sequence, max_tokens)
 
                 for i, line in enumerate(input_file):
-                    encoded_tokens = [str(vocab[token]) for token in util.tokenize(line)[:200]]
+                    sequence = util.tokenize(line)[:max_tokens_in_sequence]
+                    encoded_tokens = [str(vocab.get(token, vocab['UNKNOWN_WORD'])) for token in sequence]
                     encoded_tokens += ['0'] * (max_tokens - len(encoded_tokens))
                     output_file.write(' '.join(encoded_tokens) + '\n')
                 print('Encoded "{0}" to "{1}".'.format(file_path, output_file_path))
 
+#Sample usage: python .\preprocessor.py -d movies-large -v -e
 if __name__ == '__main__':
-    opts, args = getopt.getopt(sys.argv[1:], 'd:ove', ['directory=', 'overwrite', 'vocab', 'encode'])
+    opts, args = getopt.getopt(sys.argv[1:], 'd:ve', ['directory=', 'vocab', 'encode'])
 
     directory = None
-    overwrite = False
     run_build_vocab = False
     run_encode = False
 
     for opt, arg in opts:
         if opt in ('-d', '--directory'):
             directory = arg
-        elif opt in ('-o', '--overwrite'):
-            overwrite = True
         elif opt in ('-v', '--vocab'):
             run_build_vocab = True
         elif opt in ('-e', '--encode'):
@@ -72,7 +77,7 @@ if __name__ == '__main__':
         build_vocab([
             'data/{0}/data_context.txt'.format(directory),
             'data/{0}/data_responses.txt'.format(directory)
-        ], overwrite)
+        ])
 
     if run_encode:
         encode_data([

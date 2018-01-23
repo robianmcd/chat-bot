@@ -4,6 +4,7 @@ import os.path
 import sys
 import chat_bot.util as util
 import numpy as np
+import pickle
 
 glove_zip_file = 'downloads/glove.twitter.27B.zip'
 glove_txt_file = 'downloads/glove.twitter.27B.100d.txt'
@@ -48,18 +49,22 @@ with open(glove_txt_file, 'r', encoding='utf-8') as glove_file:
             embedding_matrix[word_index] = np.asarray(word_vector, dtype='float32')
 
             words_found += 1
-
             print('{}/{} words found.'.format(words_found, len(vocab)), end='\r')
 
 
 
     print('\nFinished building embedding vector')
 
-print('Missing words:')
 vocab_list = list(vocab.items())
 missing_words = []
 for i, row in enumerate(embedding_matrix):
     if np.array_equal(row, np.zeros(word_vector_size)):
         missing_words.append(vocab_list[i][0])
 
+print('{} words from vocabulary without pretrained GloVe embeddings:'.format(len(missing_words)))
+
 print(missing_words[:100])
+
+with open('data/glove_embeddings.pickle', 'wb') as file:
+    pickle.dump(embedding_matrix, file, protocol=pickle.HIGHEST_PROTOCOL)
+    print('Embedding weights written to data/glove_embeddings.pickle')
