@@ -19,8 +19,6 @@
  - gracefully handel words not in the vocab
  - try lstm
  - use characters instead of words
- - use beam search to predict sentence
-    - https://machinelearningmastery.com/beam-search-decoder-natural-language-processing/
 
 ## Resources
  - https://blog.keras.io/a-ten-minute-introduction-to-sequence-to-sequence-learning-in-keras.html

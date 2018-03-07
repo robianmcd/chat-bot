@@ -7,6 +7,11 @@ import chat_bot.util as util
 import getopt
 import sys
 
+# Run on CPU
+# import os
+# os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"   # see issue #152
+# os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+
 vocab = util.get_vocab()
 
 opts, args = getopt.getopt(sys.argv[1:], 'd:', ['directory='])
@@ -62,11 +67,12 @@ decoder = decoder_embedding_layer(decoder_input_layer)
 decoder = decoder_gru_layer(decoder, initial_state=encoder_state)
 decoder = decoder_dense_layer(decoder)
 
-
-batch_size = 10
+#small batch size works well on CPU e.g. 10. large on GPU
+#however larger batch size will use up RAM
+batch_size = 30
 model = Model([encoder_input_layer, decoder_input_layer], decoder)
 model.compile(optimizer='rmsprop', loss='categorical_crossentropy')
-model.fit_generator(generateData(batch_size=batch_size), steps_per_epoch=len(decoder_input_data)//batch_size, epochs=10)
+model.fit_generator(generateData(batch_size=batch_size), steps_per_epoch=len(decoder_input_data)//batch_size, epochs=3)
 
 # model.fit([encoder_input_data, decoder_input_data], decoder_target_one_hot,
 #           batch_size=32,
